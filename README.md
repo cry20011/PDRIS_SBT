@@ -1,3 +1,3 @@
 # PDRIS_SBT
 
-run `docker-compose up -- build`
+run `docker-compose up --build`
