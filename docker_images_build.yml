@@ -1,0 +1,41 @@
+---
+- hosts: myservers
+  vars:
+    create_containers: 1
+    back_name: pdris_back
+    back_image: cry20011/pdris-back # container from first lab
+    back_requirements_image: cry20011/back_requirements # clear container from first lab (only installed requirements)
+
+  tasks:
+  - name: Install Docker Module for Python
+    pip:
+      name: docker
+    become: true
+
+  - name: pull image
+    docker_image:
+      name: "{{ back_image }}"
+      source: pull
+  - name: pull requirements image
+    docker_image:
+      name: "{{ back_requirements_image }}"
+      source: pull
+
+
+  - name: get source and make volume
+    docker_container:
+      name: "{{ back_name }}"
+      image: "{{ back_image }}"
+      volumes:
+        - data:/usr/src/app
+
+  - name: run app with volume
+    docker_container:
+      name: back_server
+      image: "{{ back_requirements_image }}"
+      volumes:
+        - data:/usr/src/back_app
+      state: started
+      ports: 5000:5000
+      command: "python /usr/src/back_app/manage.py run -h 0.0.0.0" # localhost:5000
+...
